@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     let args = Args::parse();  // Fills from CLI args, has some error handling built in
     println!("Parsed: {:?}", args.command);
 
-    let mut state: AppState = load_state()?; // Stub for now
+    let mut state: AppState = load_state()?;
 
     match args.command {
         Commands::Add { title, description } => {

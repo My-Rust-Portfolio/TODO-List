@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Task {
-    title: String,
-    description: String,
+    pub title: String,
+    pub description: String,
     pub completed: bool,
     pub index: usize,
 }
