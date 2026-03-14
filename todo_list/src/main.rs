@@ -52,7 +52,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let args = Args::parse();  // Fills from CLI args
+    let args = Args::parse();  // Fills from CLI args, has some error handling built in
     println!("Parsed: {:?}", args.command);
 
     let mut state: AppState = load_state()?; // Stub for now
@@ -65,8 +65,12 @@ fn main() -> Result<()> {
             println!("Added: {:?}", state.tasks.last().unwrap());
         }
         Commands::List => {
-            for task in &state.tasks {
-                println!("{:?}", task);
+            if state.tasks.is_empty() {
+                println!("No tasks found.");
+            } else {
+                for task in &state.tasks {
+                    println!("{:?}", task);
+                }
             }
         }
         Commands::Complete { index} => {
@@ -80,11 +84,14 @@ fn main() -> Result<()> {
         }
         Commands::Delete { index } => {
             let task = state.tasks.iter().position(|t| t.index == index).map(|pos| state.tasks.swap_remove(pos));
-            
+
             if task.is_none() {
                 println!("No task found with index: {}", index);
             } else {
                 println!("Deleted task with index: {}", index);
+                if state.tasks.is_empty() {
+                    state.next_index = 0; // Reset index if no tasks remain
+                }
             }
         }
     }
