@@ -1,41 +1,14 @@
-
 // "Parser" autogerentes args from struct
 // "Subcommand" turns enum into CLI subcommands
 use clap::{Parser, Subcommand};
-
 // used for better error handling and outputs
-use anyhow::{Context, Result};
+use anyhow::{Result};
 
-// autogenerate JSON
-use serde::{Deserialize, Serialize};
+pub mod data;
+use crate::data::{AppState, Task};
 
-// file handling
-use std::{fs, path::PathBuf};
-
-#[derive(Debug, Serialize, Deserialize)]
-struct AppState {
-    tasks: Vec<Task>,
-    next_index: usize,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Task {
-    title: String,
-    description: String,
-    completed: bool,
-    index: usize,
-}
-
-impl Task  {
-    fn new(title: &str, description: &str, index: usize) -> Self {
-        Task {
-            title: title.to_string(),
-            description: description.to_string(),
-            completed: false,
-            index,
-        }
-    }
-}
+pub mod persistence;
+use crate::persistence::{load_state, save_state};
 
 #[derive(Debug, Subcommand)]
 enum Commands {
@@ -98,23 +71,4 @@ fn main() -> Result<()> {
 
     save_state(state)?;
     Ok(())
-}
-
-fn state_file() -> PathBuf {
-    PathBuf::from("state.json")
-}
-
-fn load_state() -> Result<AppState> {
-    let path = state_file();
-    if path.exists() {
-        let json = fs::read_to_string(&path).context("Failed to read state.json")?;
-        serde_json::from_str(&json).context("Failed to parse state.json")
-    } else {
-        Ok(AppState { tasks: vec![], next_index: 0 }) // Start with empty state
-    }
-}
-
-fn save_state(state: AppState) -> Result<()> {
-    let json = serde_json::to_string_pretty(&state).context("Failed to serialize state")?;
-    fs::write(state_file(), json).context("Failed to write state.json")
 }
