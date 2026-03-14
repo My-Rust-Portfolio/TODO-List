@@ -13,6 +13,12 @@ use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
 
 #[derive(Debug, Serialize, Deserialize)]
+struct AppState {
+    tasks: Vec<Task>,
+    next_index: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct Task {
     title: String,
     description: String,
@@ -20,11 +26,23 @@ struct Task {
     index: usize,
 }
 
+impl Task  {
+    fn new(title: &str, description: &str, index: usize) -> Self {
+        Task {
+            title: title.to_string(),
+            description: description.to_string(),
+            completed: false,
+            index,
+        }
+    }
+}
+
 #[derive(Debug, Subcommand)]
 enum Commands {
     List, // cargo run -- list
     Add { title: String, description: String }, // cargo run -- add ...
     Complete { index: usize }, // cargo run -- complete ...
+    Delete { index: usize }, // cargo run -- delete ...
 }
 
 #[derive(Debug, Parser)]
@@ -37,49 +55,59 @@ fn main() -> Result<()> {
     let args = Args::parse();  // Fills from CLI args
     println!("Parsed: {:?}", args.command);
 
-    let mut tasks: Vec<Task> = load_tasks()?; // Stub for now
+    let mut state: AppState = load_state()?; // Stub for now
 
     match args.command {
         Commands::Add { title, description } => {
-            let task = Task { title, description, completed: false, index: tasks.len() };
-            tasks.push(task);
-            println!("Added: {:?}", tasks.last().unwrap());
+            let task = Task::new(&title, &description, state.next_index);
+            state.tasks.push(task);
+            state.next_index += 1;
+            println!("Added: {:?}", state.tasks.last().unwrap());
         }
         Commands::List => {
-            for task in &tasks {
+            for task in &state.tasks {
                 println!("{:?}", task);
             }
         }
         Commands::Complete { index} => {
-            if index >= tasks.len() {
-                eprintln!("Error: No task with index {}", index);
-                return Ok(()); // Exit gracefully
-            }
+            let task = state.tasks.iter_mut().find(|t| t.index == index).map(|t| t.completed = true);
 
-            tasks.iter_mut().find(|t| t.index == index).map(|t| t.completed = true);
-            println!("Completed task with index: {}", index);
+            if task.is_none() {
+                println!("No task found with index: {}", index);
+            } else {
+                println!("Completed task with index: {}", index);
+            }
+        }
+        Commands::Delete { index } => {
+            let task = state.tasks.iter().position(|t| t.index == index).map(|pos| state.tasks.swap_remove(pos));
+            
+            if task.is_none() {
+                println!("No task found with index: {}", index);
+            } else {
+                println!("Deleted task with index: {}", index);
+            }
         }
     }
 
-    save_tasks(&tasks)?;
+    save_state(state)?;
     Ok(())
 }
 
-fn tasks_file() -> PathBuf {
-    PathBuf::from("tasks.json")
+fn state_file() -> PathBuf {
+    PathBuf::from("state.json")
 }
 
-fn load_tasks() -> Result<Vec<Task>> {
-    let path = tasks_file();
+fn load_state() -> Result<AppState> {
+    let path = state_file();
     if path.exists() {
-        let json = fs::read_to_string(&path).context("Failed to read tasks.json")?;
-        serde_json::from_str(&json).context("Failed to parse tasks.json")
+        let json = fs::read_to_string(&path).context("Failed to read state.json")?;
+        serde_json::from_str(&json).context("Failed to parse state.json")
     } else {
-        Ok(vec![])
+        Ok(AppState { tasks: vec![], next_index: 0 }) // Start with empty state
     }
 }
 
-fn save_tasks(tasks: &Vec<Task>) -> Result<()> {
-    let json = serde_json::to_string_pretty(tasks).context("Failed to serialize tasks")?;
-    fs::write(tasks_file(), json).context("Failed to write tasks.json")
+fn save_state(state: AppState) -> Result<()> {
+    let json = serde_json::to_string_pretty(&state).context("Failed to serialize state")?;
+    fs::write(state_file(), json).context("Failed to write state.json")
 }
