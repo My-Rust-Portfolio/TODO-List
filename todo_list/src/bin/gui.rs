@@ -1,5 +1,5 @@
 use anyhow::Result;
-use eframe::egui;
+use eframe::egui::{self};
 // The GUI can use the exact same data and persistence logic!
 use todo_list::data::AppState;
 use todo_list::persistence::load_state_file;
@@ -36,12 +36,23 @@ impl eframe::App for TodoApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("My Todo List");
 
-            for task in &self.app_state.tasks {
+            for task in &mut self.app_state.tasks {
                 ui.horizontal(|ui| {
                     let status = if task.completed { "X" } else { "   " };
-                    ui.label(format!("[{}] {}: {}", status, task.title, task.description));
+                    let complete_button = ui.button(status).on_hover_text("Complete task");
+                    if complete_button.clicked() {
+                        task.completed = !task.completed;
+                    }
+                    ui.label(format!("{}: {}", task.title, task.description));
                 });
             }
         });
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        // Save the state when the application exits
+        if let Err(e) = todo_list::persistence::save_state_file(&self.app_state) {
+            eprintln!("Failed to save state: {}", e);
+        }
     }
 }
