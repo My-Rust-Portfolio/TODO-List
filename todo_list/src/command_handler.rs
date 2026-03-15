@@ -46,22 +46,23 @@ fn handle_list(state: &AppState) {
 }
 
 fn handle_complete(state: &mut AppState, index: usize) {
-    let task = state.tasks.iter_mut().find(|t| t.index == index).map(|t| t.completed = true);
-
+    let task = state.tasks.iter_mut().find(|t| t.index == index);
     if task.is_none() {
         println!("No task found with index: {}", index);
     } else {
+        task.unwrap().completed = true;
         println!("Completed task with index: {}", index);
     }
 }
 
 fn handle_delete(state: &mut AppState, index: usize) {
-    let task = state.tasks.iter().position(|t| t.index == index).map(|pos| state.tasks.swap_remove(pos));
+    let task = state.tasks.iter().position(|t| t.index == index);
 
     if task.is_none() {
         println!("No task found with index: {}", index);
     } else {
         println!("Deleted task with index: {}", index);
+        state.tasks.retain(|t| t.index != index);
         if state.tasks.is_empty() {
             state.next_index = 0; // Reset index if no tasks remain
         }

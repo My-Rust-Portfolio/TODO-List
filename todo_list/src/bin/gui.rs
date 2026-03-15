@@ -35,7 +35,7 @@ impl eframe::App for TodoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("My Todo List");
-
+            let mut tasks_to_delete: Vec<usize> = vec![];
             for task in &mut self.app_state.tasks {
                 ui.horizontal(|ui| {
                     let status = if task.completed { "X" } else { "   " };
@@ -44,7 +44,16 @@ impl eframe::App for TodoApp {
                         task.completed = !task.completed;
                     }
                     ui.label(format!("{}: {}", task.title, task.description));
+
+                    let delete_button = ui.button("🗑️").on_hover_text("Delete task Permanently");
+                    if delete_button.clicked() {
+                        tasks_to_delete.push(task.index);
+                    }                    
                 });
+            }
+
+            for index in tasks_to_delete {
+                self.app_state.tasks.retain(|t| t.index != index);
             }
         });
     }
