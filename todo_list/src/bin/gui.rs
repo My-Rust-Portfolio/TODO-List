@@ -56,6 +56,7 @@ impl eframe::App for TodoApp {
             ui.separator();
 
             let mut tasks_to_delete: Vec<usize> = vec![];
+
             for task in &mut self.app_state.tasks {
                 ui.horizontal(|ui| {
                     let status = if task.completed { "✅" } else { "    " };
@@ -103,8 +104,13 @@ impl eframe::App for TodoApp {
                             );
                             self.app_state.tasks.push(new_task);
                             self.app_state.next_index += 1;
+                            self.draft_title.clear();
+                            self.draft_desc.clear();
+                            self.show_add_window = false;
+                        }
 
-                            // Clear drafts and close window
+                        let cancel_button = ui.button("Cancel");
+                        if cancel_button.clicked() {
                             self.draft_title.clear();
                             self.draft_desc.clear();
                             self.show_add_window = false;
