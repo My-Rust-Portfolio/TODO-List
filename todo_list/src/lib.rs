@@ -1,9 +1,9 @@
-// unit testing
-
 pub mod data;
 pub mod persistence;
 pub mod command_handler;
+pub mod input_handler;
 
+// unit testing
 #[cfg(test)]
 mod tests {
     use crate::data::{AppState, Task};
