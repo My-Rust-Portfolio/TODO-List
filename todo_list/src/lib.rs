@@ -1,13 +1,11 @@
 // unit testing
 
 pub mod data;
-use crate::data::{AppState, Task};
-pub mod persistence;
 
 #[cfg(test)]
 mod tests {
-    use super::*;  // Access parent module
-
+    use crate::data::{AppState, Task};
+    
     #[test]
     fn test_task_new() {
         let task = Task::new("Milk", "Groceries", 1);

@@ -16,8 +16,8 @@ pub fn load_state() -> Result<AppState> {
     }
 }
 
-pub fn save_state(state: AppState) -> Result<()> {
-    let json = serde_json::to_string_pretty(&state).context("Failed to serialize state")?;
+pub fn save_state(state: &AppState) -> Result<()> {
+    let json = serde_json::to_string_pretty(state).context("Failed to serialize state")?;
     fs::write(state_file(), json).context("Failed to write state.json")
 }
 
