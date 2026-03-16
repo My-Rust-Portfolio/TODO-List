@@ -7,3 +7,6 @@ cargo run --bin cli list
 cargo run --bin cli complete #id (eg. complete 1)  
 cargo run --bin cli delete #id (eg. delete 1)  
 cargo test  
+
+## Usage for GUI version
+cargo run --bin gui  
