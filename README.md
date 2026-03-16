@@ -10,3 +10,6 @@ cargo test
 
 ## Usage for GUI version
 cargo run --bin gui  
+
+<img width="499" height="530" alt="Image" src="https://github.com/user-attachments/assets/c9134512-b061-4732-a4f0-f4ac9fd08fe3" />
+<img width="500" height="531" alt="Image" src="https://github.com/user-attachments/assets/8d794bc4-8042-41e6-975e-135f003ec3aa" />
