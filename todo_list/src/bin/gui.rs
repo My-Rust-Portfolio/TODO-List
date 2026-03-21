@@ -1,6 +1,5 @@
 use anyhow::Result;
 use eframe::egui::{self};
-// The GUI can use the exact same data and persistence logic!
 use todo_list::data::AppState;
 use todo_list::gui_handler::TodoApp;
 use todo_list::persistence::load_state_file;

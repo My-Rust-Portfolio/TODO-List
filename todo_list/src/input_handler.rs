@@ -1,10 +1,9 @@
-// "Parser" autogerentes args from struct
-use clap::{Parser};
 use crate::command_handler::Commands;
+use clap::Parser;
 
 #[derive(Debug, Parser)]
 pub struct Args {
-    #[command(subcommand)] // Tells clap to parse the subcommand into this field
+    #[command(subcommand)]
     pub command: Commands,
 }
 
