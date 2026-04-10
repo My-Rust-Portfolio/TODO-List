@@ -1,13 +1,13 @@
 // "Subcommand" turns enum into CLI subcommands
-use clap::{Subcommand};
 use crate::data::{AppState, Task};
+use clap::Subcommand;
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    List, // cargo run -- list
+    List,                                       // cargo run -- list
     Add { title: String, description: String }, // cargo run -- add ...
-    Complete { index: usize }, // cargo run -- complete ...
-    Delete { index: usize }, // cargo run -- delete ...
+    Complete { index: usize },                  // cargo run -- complete ...
+    Delete { index: usize },                    // cargo run -- delete ...
 }
 
 pub fn handle_command(state: &mut AppState, command: &Commands) {
@@ -18,7 +18,7 @@ pub fn handle_command(state: &mut AppState, command: &Commands) {
         Commands::List => {
             handle_list(state);
         }
-        Commands::Complete { index} => {
+        Commands::Complete { index } => {
             handle_complete(state, *index);
         }
         Commands::Delete { index } => {
@@ -29,7 +29,7 @@ pub fn handle_command(state: &mut AppState, command: &Commands) {
 
 // ---------------------- PRIVATE HELPERS ----------------------
 fn handle_add(state: &mut AppState, title: &str, description: &str) {
-    let task = Task::new(&title, &description, state.next_index);
+    let task = Task::new(title, description, state.next_index);
     state.tasks.push(task);
     state.next_index += 1;
     println!("Added: {:?}", state.tasks.last().unwrap());
@@ -47,11 +47,12 @@ fn handle_list(state: &AppState) {
 
 fn handle_complete(state: &mut AppState, index: usize) {
     let task = state.tasks.iter_mut().find(|t| t.index == index);
-    if task.is_none() {
-        println!("No task found with index: {}", index);
-    } else {
-        task.unwrap().completed = true;
+
+    if let Some(item) = task {
+        item.completed = true;
         println!("Completed task with index: {}", index);
+    } else {
+        println!("No task found with index: {}", index);
     }
 }
 
